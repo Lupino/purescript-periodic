@@ -1,0 +1,26 @@
+{
+  "name": "purescript-periodic",
+  "description": "The periodic task system client for purescript",
+  "authors": [
+    {
+      "name": "Li Meng Jun",
+      "email": "lmjubuntu@gmail.com"
+    }
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/Lupino/purescript-periodic",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "purescript-aff": "^4.0.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Lupino/purescript-periodic.git"
+  }
+}
