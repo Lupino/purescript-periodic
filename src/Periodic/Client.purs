@@ -6,6 +6,7 @@ module Periodic.Client
   , status
   , dropFunc
   , removeJob
+  , Job (..)
   , module Periodic.Types
   ) where
 
@@ -24,10 +25,14 @@ foreign import _status :: forall a eff. Client -> EffFnAff eff a
 foreign import _dropFunc :: forall eff. Client -> String -> EffFnAff eff Unit
 foreign import _removeJob :: forall a eff. Client -> a -> EffFnAff eff Unit
 
+type Job opts = { name :: String, func :: String | opts}
+  -- workload :: String
+  -- sched_at :: Int
+
 newClient :: forall a b eff. a -> b -> Eff (periodic :: PERIODIC | eff) Client
 newClient a b = runFn2 _newClient a b
 
-submitJob :: forall a eff. Client -> a -> Aff (periodic :: PERIODIC | eff) Unit
+submitJob :: forall a eff. Client -> Job a -> Aff (periodic :: PERIODIC | eff) Unit
 submitJob c = fromEffFnAff <<< _submitJob c
 
 ping :: forall eff. Client -> Aff (periodic ::PERIODIC | eff) Boolean
@@ -39,5 +44,5 @@ status = fromEffFnAff <<< _status
 dropFunc :: forall eff. Client -> String -> Aff (periodic ::PERIODIC | eff) Unit
 dropFunc c = fromEffFnAff <<< _dropFunc c
 
-removeJob :: forall a eff. Client -> a -> Aff (periodic ::PERIODIC | eff) Unit
+removeJob :: forall a eff. Client -> Job a -> Aff (periodic ::PERIODIC | eff) Unit
 removeJob c = fromEffFnAff <<< _removeJob c
