@@ -17,7 +17,7 @@
     "tests"
   ],
   "dependencies": {
-    "purescript-aff": "^4.0.2"
+    "purescript-aff": "^5.0.0"
   },
   "repository": {
     "type": "git",
