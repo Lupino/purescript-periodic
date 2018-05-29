@@ -79,9 +79,7 @@ instance monadWorkerT :: Monad m => Monad (WorkerT m)
 instance monadTransWorkerT :: MonadTrans (WorkerT) where
   lift = WorkerT <<< lift
 
-instance monadEffWorkerT
-  :: MonadEffect m
-  => MonadEffect (WorkerT m) where
+instance monadEffectWorkerT :: MonadEffect m => MonadEffect (WorkerT m) where
   liftEffect = lift <<< liftEffect
 
 instance monadAffWorkerT
@@ -114,7 +112,7 @@ instance monadJobT :: Monad m => Monad (JobT m)
 instance monadTransJobT :: MonadTrans JobT where
   lift = JobT <<< lift
 
-instance monadEffJobT :: MonadEffect m => MonadEffect (JobT m) where
+instance monadEffectJobT :: MonadEffect m => MonadEffect (JobT m) where
   liftEffect = lift <<< liftEffect
 
 instance monadAffJobT :: MonadAff m => MonadAff (JobT m) where
