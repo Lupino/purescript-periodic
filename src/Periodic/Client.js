@@ -47,6 +47,7 @@ function mkfn1(fn) {
 }
 
 exports._submitJob = mkfn2('submitJob');
+exports._runJob = mkfn2('runJob');
 exports._ping = mkfn1('ping');
 exports._status = mkfn1('status');
 exports._dropFunc = mkfn2('dropFunc');

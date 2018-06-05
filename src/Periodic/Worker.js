@@ -26,9 +26,29 @@ exports._addFunc = function(worker) {
   }
 }
 
+exports._broadcast = function(worker) {
+  return function(func) {
+    return function(task) {
+      return function() {
+        return worker.broadcast(func, function(job) {
+          task(job)();
+        });
+      }
+    }
+  }
+}
+
 exports._done = function(job) {
   return function() {
     return job.done();
+  }
+}
+
+exports._data = function(job) {
+  return function(data) {
+    return function() {
+      return job.data(data);
+    }
   }
 }
 

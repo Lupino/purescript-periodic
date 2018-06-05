@@ -3,11 +3,13 @@ module Periodic.Worker
   , WorkerT
   , runWorkerT
   , addFunc
+  , broadcast
   , work
 
   , Job
   , JobT
   , done
+  , data_
   , fail
   , schedLater
   , funcName
@@ -30,8 +32,10 @@ foreign import data Worker :: Type
 foreign import newWorker :: forall a. a -> Effect Worker
 foreign import _work :: Worker -> Int -> Effect Unit
 foreign import _addFunc :: Worker -> String -> (Job -> Effect Unit) -> Effect Unit
+foreign import _broadcast :: Worker -> String -> (Job -> Effect Unit) -> Effect Unit
 
 foreign import _done :: Job -> Effect Unit
+foreign import _data :: Job -> String -> Effect Unit
 foreign import _fail :: Job -> Effect Unit
 foreign import _schedLater :: Job -> Int -> Effect Unit
 
@@ -46,15 +50,12 @@ newtype JobT m a = JobT (ReaderT Job m a)
 
 runWorkerT
   :: forall a m. MonadEffect m
-   => (m Unit -> Effect Unit)
-   -> a -> WorkerT m Unit -> m Unit
+   => (m Unit -> Effect Unit) -> a -> WorkerT m Unit -> m Unit
 runWorkerT runEff a (WorkerT m) = do
   w <- liftEffect $ newWorker a
   runReaderT m (WK runEff w)
 
-runJobT
-  :: forall a m. MonadEffect m
-  => Job -> JobT m a -> m a
+runJobT :: forall a m. MonadEffect m => Job -> JobT m a -> m a
 runJobT a (JobT m) = runReaderT m a
 
 derive instance newtypeWorkerT :: Newtype (WorkerT m a) _
@@ -82,9 +83,7 @@ instance monadTransWorkerT :: MonadTrans (WorkerT) where
 instance monadEffectWorkerT :: MonadEffect m => MonadEffect (WorkerT m) where
   liftEffect = lift <<< liftEffect
 
-instance monadAffWorkerT
-  :: MonadAff m
-  => MonadAff (WorkerT m) where
+instance monadAffWorkerT :: MonadAff m => MonadAff (WorkerT m) where
   liftAff = lift <<< liftAff
 
 instance monadAskWorkerT :: Monad m => MonadAsk (WK m) (WorkerT m) where
@@ -121,47 +120,40 @@ instance monadAffJobT :: MonadAff m => MonadAff (JobT m) where
 instance monadAskJobT :: Monad m => MonadAsk Job (JobT m) where
   ask = JobT ask
 
-addFunc
-  :: forall m. MonadEffect m
-  => String -> JobT m Unit -> WorkerT m Unit
+addFunc :: forall m. MonadEffect m => String -> JobT m Unit -> WorkerT m Unit
 addFunc func m = do
   (WK runEff w) <- ask
   liftEffect $ _addFunc w func $ \job ->
     runEff $ runJobT job m
 
-work
-  :: forall m. MonadEffect m
-  => Int -> WorkerT m Unit
+broadcast :: forall m. MonadEffect m => String -> JobT m Unit -> WorkerT m Unit
+broadcast func m = do
+  (WK runEff w) <- ask
+  liftEffect $ _broadcast w func $ \job ->
+    runEff $ runJobT job m
+
+work :: forall m. MonadEffect m => Int -> WorkerT m Unit
 work size = do
   (WK _ w) <- ask
   liftEffect $ _work w size
 
-done
-  :: forall m. MonadEffect m
-  => JobT m Unit
+done :: forall m. MonadEffect m => JobT m Unit
 done = liftEffect <<< _done =<< ask
 
-fail
-  :: forall m. MonadEffect m
-  => JobT m Unit
+data_ :: forall m. MonadEffect m => String -> JobT m Unit
+data_ out = liftEffect <<< flip _data out =<< ask
+
+fail :: forall m. MonadEffect m => JobT m Unit
 fail = liftEffect <<< _fail =<< ask
 
-schedLater
-  :: forall m. MonadEffect m
-  =>  Int -> JobT m Unit
+schedLater :: forall m. MonadEffect m =>  Int -> JobT m Unit
 schedLater delay = liftEffect <<< flip _schedLater delay =<< ask
 
-funcName
-  :: forall m. MonadEffect m
-  => JobT m String
+funcName :: forall m. MonadEffect m => JobT m String
 funcName = liftEffect <<< _funcName =<< ask
 
-name
-  :: forall m. MonadEffect m
-  => JobT m String
+name :: forall m. MonadEffect m => JobT m String
 name = liftEffect <<< _name =<< ask
 
-workload
-  :: forall m. MonadEffect m
-  => JobT m String
+workload :: forall m. MonadEffect m => JobT m String
 workload = liftEffect <<< _workload =<< ask

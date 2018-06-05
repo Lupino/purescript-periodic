@@ -2,6 +2,7 @@ module Periodic.Client
   ( Client
   , newClient
   , submitJob
+  , runJob
   , ping
   , status
   , dropFunc
@@ -18,6 +19,7 @@ import Effect.Aff.Compat (fromEffectFnAff, EffectFnAff)
 foreign import data Client :: Type
 foreign import _newClient :: forall a b. Fn2 a b (Effect Client)
 foreign import _submitJob :: forall a. Client -> a -> EffectFnAff Unit
+foreign import _runJob :: forall a. Client -> a -> EffectFnAff String
 foreign import _ping :: Client -> EffectFnAff Boolean
 foreign import _status :: forall a. Client -> EffectFnAff a
 foreign import _dropFunc ::  Client -> String -> EffectFnAff Unit
@@ -32,6 +34,9 @@ newClient a b = runFn2 _newClient a b
 
 submitJob :: forall a. Client -> Job a -> Aff Unit
 submitJob c = fromEffectFnAff <<< _submitJob c
+
+runJob :: forall a. Client -> Job a -> Aff String
+runJob c = fromEffectFnAff <<< _runJob c
 
 ping ::  Client -> Aff Boolean
 ping = fromEffectFnAff <<< _ping
