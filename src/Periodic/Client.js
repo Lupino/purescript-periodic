@@ -1,10 +1,10 @@
-var periodic = require('node-periodic');
+const periodic = require('node-periodic');
 
 exports._newClient = function(options, poolOpts) {
   return function() {
     return new periodic.PeriodicClientPool(options, poolOpts);
-  }
-}
+  };
+};
 
 function mkfn2(fn) {
   return function(client) {
@@ -19,12 +19,12 @@ function mkfn2(fn) {
         });
 
         // Return a canceler, which is just another Aff effect.
-        return function (cancelError, cancelerError, cancelerSuccess) {
+        return function(cancelError, cancelerError, cancelerSuccess) {
           cancelerSuccess(); // invoke the success callback for the canceler
         };
-      }
-    }
-  }
+      };
+    };
+  };
 }
 
 function mkfn1(fn) {
@@ -39,11 +39,11 @@ function mkfn1(fn) {
       });
 
       // Return a canceler, which is just another Aff effect.
-      return function (cancelError, cancelerError, cancelerSuccess) {
+      return function(cancelError, cancelerError, cancelerSuccess) {
         cancelerSuccess(); // invoke the success callback for the canceler
       };
-    }
-  }
+    };
+  };
 }
 
 exports._submitJob = mkfn2('submitJob');
