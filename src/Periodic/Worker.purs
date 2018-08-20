@@ -9,7 +9,7 @@ module Periodic.Worker
   , Job
   , JobT
   , done
-  , data_
+  , done_
   , fail
   , schedLater
   , funcName
@@ -34,8 +34,7 @@ foreign import _work :: Worker -> Int -> Effect Unit
 foreign import _addFunc :: Worker -> String -> (Job -> Effect Unit) -> Effect Unit
 foreign import _broadcast :: Worker -> String -> (Job -> Effect Unit) -> Effect Unit
 
-foreign import _done :: Job -> Effect Unit
-foreign import _data :: Job -> String -> Effect Unit
+foreign import _done :: Job -> String -> Effect Unit
 foreign import _fail :: Job -> Effect Unit
 foreign import _schedLater :: Job -> Int -> Effect Unit
 
@@ -137,11 +136,11 @@ work size = do
   (WK _ w) <- ask
   liftEffect $ _work w size
 
-done :: forall m. MonadEffect m => JobT m Unit
-done = liftEffect <<< _done =<< ask
+done_ :: forall m. MonadEffect m => String -> JobT m Unit
+done_ dat = liftEffect <<< flip _done dat =<< ask
 
-data_ :: forall m. MonadEffect m => String -> JobT m Unit
-data_ out = liftEffect <<< flip _data out =<< ask
+done :: forall m. MonadEffect m => JobT m Unit
+done = done_ ""
 
 fail :: forall m. MonadEffect m => JobT m Unit
 fail = liftEffect <<< _fail =<< ask

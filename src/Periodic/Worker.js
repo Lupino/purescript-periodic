@@ -39,15 +39,9 @@ exports._broadcast = function(worker) {
 };
 
 exports._done = function(job) {
-  return function() {
-    return job.done();
-  };
-};
-
-exports._data = function(job) {
   return function(data) {
     return function() {
-      return job.data(data);
+      return job.done(data);
     };
   };
 };
