@@ -47,5 +47,5 @@ status = fromEffectFnAff <<< _status
 dropFunc ::  Client -> String -> Aff Unit
 dropFunc c = fromEffectFnAff <<< _dropFunc c
 
-removeJob :: forall a. Client -> Job a -> Aff Unit
-removeJob c = fromEffectFnAff <<< _removeJob c
+removeJob :: forall a. Client -> {func :: String, name :: String} -> Aff Unit
+removeJob c = fromEffectFnAff <<< _removeJob
